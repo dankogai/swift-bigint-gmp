@@ -15,6 +15,14 @@ jobs:
         swift: ["6.3"]
     runs-on: ${{ matrix.os }}
     steps:
+      - name: Install GMP (Linux)
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libgmp-dev
+      - name: Install GMP (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          brew install gmp pkgconf
+          echo "PKG_CONFIG_PATH=$(brew --prefix)/lib/pkgconfig" >> "$GITHUB_ENV"
       - uses: SwiftyLab/setup-swift@v1
         with:
           swift-version: ${{ matrix.swift }}
