@@ -95,6 +95,19 @@ and `import GMPBigInt`.
   and GMP is safe for concurrent reads.
 - Works on macOS *and* Linux — anywhere GMP does.
 
+## Performance
+
+GMP is the library other bignums measure themselves against, and it
+shows: `GMPBigInt` is the fastest of the four libraries benchmarked
+([JSCBigInt], [attaswift/BigInt], [dankogai/swift-bignum]) on every
+case except many-tiny-ops — often by one to two orders of magnitude
+(isqrt of a 20k-digit number: 200–1000×).  See
+[Benchmark.md](Benchmark.md) for numbers and the
+[Benchmarks/](Benchmarks/) harness.
+
+[JSCBigInt]: https://github.com/dankogai/swift-bigint-javascriptcore
+[attaswift/BigInt]: https://github.com/attaswift/BigInt
+
 ## SwiftBigNumExample
 
 [SwiftBigNumExample](SwiftBigNumExample/) shows `GMPBigInt` riding

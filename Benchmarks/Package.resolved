@@ -1,0 +1,32 @@
+{
+  "pins" : [
+    {
+      "identity" : "bigint",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/attaswift/BigInt.git",
+      "state" : {
+        "revision" : "e07e00fa1fd435143a2dcf8b7eec9a7710b2fdfe",
+        "version" : "5.7.0"
+      }
+    },
+    {
+      "identity" : "swift-bigint-javascriptcore",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/dankogai/swift-bigint-javascriptcore.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "9a87dc800789678aa726466bfb534ed3af0c1622"
+      }
+    },
+    {
+      "identity" : "swift-bignum",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/dankogai/swift-bignum.git",
+      "state" : {
+        "revision" : "736fe83baba4ce736781dfefe540b8fb2b6e4810",
+        "version" : "6.3.2"
+      }
+    }
+  ],
+  "version" : 2
+}
