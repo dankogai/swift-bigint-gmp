@@ -1,6 +1,6 @@
 # SwiftBigNumExample
 
-[dankogai/swift-bignum] with its `BigInt` swapped for `MPBigInt` — while
+[dankogai/swift-bignum] with its `BigInt` swapped for `GMPBigInt` — while
 `BigRat` and `BigFloat` keep working, side by side.
 
 ```sh
@@ -13,11 +13,11 @@ so SwiftPM can find GMP.)
 
 The conformance glue lives in its own `GMPBigNum` library target, which
 the demo executable and the test suite share.  The tests pin down what
-the demo prints: `Rational<MPBigInt>` reduction through MPBigInt's own
-gcd, `BigFloatOf<MPBigInt>` agreeing with `BigFloat` digit-for-digit on
+the demo prints: `Rational<GMPBigInt>` reduction through GMPBigInt's own
+gcd, `BigFloatOf<GMPBigInt>` agreeing with `BigFloat` digit-for-digit on
 π, √2, e and log 10, the per-specialization `precision` knob, the zero
 regression from swift-bignum#31's review, and the Codable round trip of
-an MPBigInt-mantissa float.
+a GMPBigInt-mantissa float.
 
 Three tricks make it work:
 
@@ -25,7 +25,7 @@ Three tricks make it work:
    `BigInt` that `import BigNum` brings in:
 
    ```swift
-   typealias BigInt = MPBigInt
+   typealias BigInt = GMPBigInt
    ```
 
 2. **BigNum's own `BigInt` stays reachable** — not as `BigNum.BigInt`
@@ -37,12 +37,12 @@ Three tricks make it work:
    typealias BNBigInt = BigFloat.Significand
    ```
 
-3. **`Rational` is generic over `RationalElement`**, so MPBigInt can be
+3. **`Rational` is generic over `RationalElement`**, so GMPBigInt can be
    its element — `BigRat`'s own machinery running on GMP digits:
 
    ```swift
-   extension MPBigInt: @retroactive RationalElement {}
-   typealias MPRat = Rational<MPBigInt>   // BigInt(1).over(BigInt(3)) just works
+   extension GMPBigInt: @retroactive RationalElement {}
+   typealias GMPRat = Rational<GMPBigInt>   // BigInt(1).over(BigInt(3)) just works
    ```
 
 4. **`BigFloat` went generic too** ([swift-bignum#31]): it is now
@@ -52,15 +52,15 @@ Three tricks make it work:
    `BigFloat`'s:
 
    ```swift
-   extension MPBigInt: @retroactive BigIntegerType {
+   extension GMPBigInt: @retroactive BigIntegerType {
        public var isZero: Bool { self == 0 }
    }
-   typealias MPFloat = BigFloatOf<MPBigInt>
-   MPFloat.PI(precision: 192)   // 3.14159265358979323846…, every digit GMP's
+   typealias GMPFloat = BigFloatOf<GMPBigInt>
+   GMPFloat.PI(precision: 192)   // 3.14159265358979323846…, every digit GMP's
    ```
 
 Conversions also flow freely in both directions through the
-`BinaryInteger` machinery, which is the point of `MPBigInt` being a
+`BinaryInteger` machinery, which is the point of `GMPBigInt` being a
 full `SignedInteger`.
 
 [dankogai/swift-bignum]: https://github.com/dankogai/swift-bignum

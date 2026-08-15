@@ -1,38 +1,38 @@
 //
-//  swift-bignum with its BigInt swapped for MPBigInt.
+//  swift-bignum with its BigInt swapped for GMPBigInt.
 //
-//  The point of this example: within this module, `BigInt` IS MPBigInt.
+//  The point of this example: within this module, `BigInt` IS GMPBigInt.
 //  A same-module declaration shadows the `BigInt` that `import BigNum` brings
 //  in, so everything below that says `BigInt` runs on GNU MP — while
 //  BigNum's `BigRat` and `BigFloat` keep working, side by side.
 //
 import BigNum
 import GMPBigInt
-import GMPBigNum   // the conformance glue: MPRat, MPFloat, BNBigInt
+import GMPBigNum   // the conformance glue: GMPRat, GMPFloat, BNBigInt
 
-typealias BigInt = MPBigInt
+typealias BigInt = GMPBigInt
 
 func banner(_ title: String) {
     print("\n== \(title) ==")
 }
 
-// MARK: 1. `BigInt` is MPBigInt now
+// MARK: 1. `BigInt` is GMPBigInt now
 
-banner("BigInt is MPBigInt")
+banner("BigInt is GMPBigInt")
 let fact30: BigInt = (1...30).map { BigInt($0) }.reduce(1, *)
 print("type(of: fact30)  :", type(of: fact30))
 print("30!               :", fact30)
 print("(2^127 - 1).isPrime:", ((BigInt(1) << 127) - 1).isPrime == true, "(settled by Lucas-Lehmer)")
 print("10^20.nextPrime   :", BigInt(10).power(20).nextPrime)
 
-// MARK: 2. Rational over MPBigInt
+// MARK: 2. Rational over GMPBigInt
 
-banner("Rational<MPBigInt> — BigRat's machinery, GMP's digits")
+banner("Rational<GMPBigInt> — BigRat's machinery, GMP's digits")
 let third = BigInt(1).over(BigInt(3))
 print("type(of: third)   :", type(of: third))
 print("1/3 + 1/6         :", third + BigInt(1).over(BigInt(6)))
 // the harmonic number H_30, exact
-let h30 = (1...30).map { BigInt(1).over(BigInt($0)) }.reduce(MPRat(0), +)
+let h30 = (1...30).map { BigInt(1).over(BigInt($0)) }.reduce(GMPRat(0), +)
 print("H_30              :", h30)
 print("H_30 as Double    :", h30.toDouble())
 
@@ -54,22 +54,22 @@ print("exp(1), 192 bits  :", BigFloat.exp(BigFloat(1), precision: 192))
 
 // MARK: 5. BigFloat's machinery, GMP's mantissa
 
-banner("BigFloatOf<MPBigInt> — every digit below lives in GMP")
-print("type(of: mantissa):", type(of: MPFloat.pi.mantissa))
-print("sqrt(2), 192 bits :", MPFloat.sqrt(MPFloat(2), precision: 192))
-print("pi, 192 bits      :", MPFloat.PI(precision: 192))
-print("exp(1), 192 bits  :", MPFloat.exp(MPFloat(1), precision: 192))
+banner("BigFloatOf<GMPBigInt> — every digit below lives in GMP")
+print("type(of: mantissa):", type(of: GMPFloat.pi.mantissa))
+print("sqrt(2), 192 bits :", GMPFloat.sqrt(GMPFloat(2), precision: 192))
+print("pi, 192 bits      :", GMPFloat.PI(precision: 192))
+print("exp(1), 192 bits  :", GMPFloat.exp(GMPFloat(1), precision: 192))
 print("agrees with BigFloat:",
-      MPFloat.PI(precision: 192).description == BigFloat.PI(precision: 192).description)
+      GMPFloat.PI(precision: 192).description == BigFloat.PI(precision: 192).description)
 
 // MARK: 6. And they interoperate
 
-banner("Interop: MPBigInt <-> BigNum, via BinaryInteger")
-let bnFact = BNBigInt(fact30)          // MPBigInt -> BigNum's BigInt
-let mpBack = BigInt(bnFact)            // and back
-print("30! round trip    :", mpBack == fact30, "(\(type(of: fact30)) -> \(type(of: bnFact)) -> \(type(of: mpBack)))")
-let mpRat = BigInt(355).over(BigInt(113))
-let bnRat = BNBigInt(mpRat.num).over(BNBigInt(mpRat.den))
-print("355/113 as MPRat  :", mpRat, "-> as BigRat:", bnRat)
+banner("Interop: GMPBigInt <-> BigNum, via BinaryInteger")
+let bnFact = BNBigInt(fact30)          // GMPBigInt -> BigNum's BigInt
+let gmpBack = BigInt(bnFact)            // and back
+print("30! round trip    :", gmpBack == fact30, "(\(type(of: fact30)) -> \(type(of: bnFact)) -> \(type(of: gmpBack)))")
+let gmpRat = BigInt(355).over(BigInt(113))
+let bnRat = BNBigInt(gmpRat.num).over(BNBigInt(gmpRat.den))
+print("355/113 as GMPRat  :", gmpRat, "-> as BigRat:", bnRat)
 print("as BigFloat       :", BigFloat(bnRat.toDouble()))
 print("vs pi             :", BigFloat.PI(precision: 64))

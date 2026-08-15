@@ -1,29 +1,29 @@
 //
-//  GMPBigNum -- the conformance glue that lets MPBigInt ride swift-bignum's
+//  GMPBigNum -- the conformance glue that lets GMPBigInt ride swift-bignum's
 //  generic machinery.  Two retroactive conformances and three typealiases;
 //  everything else is what the two libraries already were.
 //
 import BigNum
 import GMPBigInt
 
-// `Rational` is generic over `RationalElement`, so MPBigInt can be its
-// element.  MPBigInt's own greatestCommonDivisor(with:) and squareRoot() are
+// `Rational` is generic over `RationalElement`, so GMPBigInt can be its
+// element.  GMPBigInt's own greatestCommonDivisor(with:) and squareRoot() are
 // the witnesses -- both requirements since swift-bignum#31 -- so reduction
 // runs in GMP too.
-extension MPBigInt: @retroactive RationalElement {}
+extension GMPBigInt: @retroactive RationalElement {}
 
-// BigFloatOf<IntType> takes any BigIntegerType & RationalElement.  MPBigInt
+// BigFloatOf<IntType> takes any BigIntegerType & RationalElement.  GMPBigInt
 // satisfies BigIntegerType save for spelling out `isZero`; string parsing and
 // toString(radix:uppercase:) come from the protocol's own defaults.
-extension MPBigInt: @retroactive BigIntegerType {
+extension GMPBigInt: @retroactive BigIntegerType {
     public var isZero: Bool { self == 0 }
 }
 
 /// BigRat's machinery, GMP's digits.
-public typealias MPRat = Rational<MPBigInt>
+public typealias GMPRat = Rational<GMPBigInt>
 
 /// BigFloat's machinery, GMP's mantissa.
-public typealias MPFloat = BigFloatOf<MPBigInt>
+public typealias GMPFloat = BigFloatOf<GMPBigInt>
 
 /// BigNum's own `BigInt`, still reachable -- not as `BigNum.BigInt` (the
 /// `BigNum` *protocol* shadows the module name in qualified lookup), but

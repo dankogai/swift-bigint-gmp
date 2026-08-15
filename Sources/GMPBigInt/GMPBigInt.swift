@@ -46,7 +46,7 @@ private let mpz_perfect_square_p = __gmpz_perfect_square_p
 /// is expected.
 ///
 /// [GNU MP]: https://gmplib.org
-public struct MPBigInt {
+public struct GMPBigInt {
     /// The underlying GMP integer.  Initialized once, cleared on deinit,
     /// and treated as immutable in between.
     internal final class Storage {
@@ -69,7 +69,7 @@ public struct MPBigInt {
 
 // MARK: - GMP plumbing
 
-extension MPBigInt {
+extension GMPBigInt {
     /// -1, 0, or +1 — read straight off the mpz's limb count.
     internal var sign: Int {
         let size = storage.z._mp_size
@@ -161,7 +161,7 @@ extension MPBigInt {
 
 // MARK: - Initializers
 
-extension MPBigInt {
+extension GMPBigInt {
     /// Creates a value from its textual representation in the given radix (2...36).
     /// Accepts an optional leading `+` or `-`. Returns `nil` on invalid input.
     public init?(_ description: String, radix: Int) {
@@ -225,7 +225,7 @@ extension MPBigInt {
     }
 
     public init<T: BinaryFloatingPoint>(_ source: T) {
-        precondition(source.isFinite, "cannot convert \(source) to MPBigInt")
+        precondition(source.isFinite, "cannot convert \(source) to GMPBigInt")
         self.init(integral: source.rounded(.towardZero))
     }
 
@@ -237,7 +237,7 @@ extension MPBigInt {
         }
         // A nonzero integral value is normal, so the significand has an implicit
         // leading 1 bit: value = ±(pattern | 1 << significandBitCount) × 2^(exponent - significandBitCount)
-        let mantissa = MPBigInt(source.significandBitPattern) | (MPBigInt(1) << T.significandBitCount)
+        let mantissa = GMPBigInt(source.significandBitPattern) | (GMPBigInt(1) << T.significandBitCount)
         let shift = Int(source.exponent) - T.significandBitCount
         let magnitude = shift >= 0 ? mantissa << shift : mantissa >> (-shift)
         self = source < 0 ? -magnitude : magnitude
@@ -246,7 +246,7 @@ extension MPBigInt {
 
 // MARK: - String conversions
 
-extension MPBigInt: CustomStringConvertible, LosslessStringConvertible {
+extension GMPBigInt: CustomStringConvertible, LosslessStringConvertible {
     public init?(_ description: String) {
         self.init(description, radix: 10)
     }
@@ -272,7 +272,7 @@ extension MPBigInt: CustomStringConvertible, LosslessStringConvertible {
 
 // MARK: - Equatable, Comparable, Hashable
 
-extension MPBigInt: Comparable {
+extension GMPBigInt: Comparable {
     public static func == (lhs: Self, rhs: Self) -> Bool {
         mpz_cmp(&lhs.storage.z, &rhs.storage.z) == 0
     }
@@ -282,7 +282,7 @@ extension MPBigInt: Comparable {
     }
 }
 
-extension MPBigInt: Hashable {
+extension GMPBigInt: Hashable {
     public func hash(into hasher: inout Hasher) {
         hasher.combine(sign)
         for word in magnitudeWords { hasher.combine(word) }
@@ -291,8 +291,8 @@ extension MPBigInt: Hashable {
 
 // MARK: - Integer literals
 
-extension MPBigInt: ExpressibleByIntegerLiteral {
-    /// `StaticBigInt` makes literals of any size work: `let x: MPBigInt = 10 ** 40` digits long.
+extension GMPBigInt: ExpressibleByIntegerLiteral {
+    /// `StaticBigInt` makes literals of any size work: `let x: GMPBigInt = 10 ** 40` digits long.
     public init(integerLiteral value: StaticBigInt) {
         let wordCount = Swift.max(1, (value.bitWidth + 63) / 64)
         let words = (0 ..< wordCount).map { value[$0] }
@@ -302,14 +302,14 @@ extension MPBigInt: ExpressibleByIntegerLiteral {
 
 // MARK: - SignedInteger
 
-extension MPBigInt: SignedInteger {
-    public typealias Magnitude = MPBigInt
+extension GMPBigInt: SignedInteger {
+    public typealias Magnitude = GMPBigInt
     public typealias Words = [UInt]
     public typealias Stride = Int
 
     public static var isSigned: Bool { true }
 
-    public var magnitude: MPBigInt {
+    public var magnitude: GMPBigInt {
         Self.unary(mpz_abs, self)
     }
 
@@ -417,7 +417,7 @@ extension MPBigInt: SignedInteger {
 
 // MARK: - Exponentiation
 
-extension MPBigInt {
+extension GMPBigInt {
     /// `self` raised to `exponent` (which must be non-negative), via `mpz_pow_ui`.
     public func power(_ exponent: some BinaryInteger) -> Self {
         precondition(exponent >= 0, "exponent must be non-negative")
@@ -435,8 +435,8 @@ extension MPBigInt {
     ///
     /// Semantics match swift-bignum's `power(_:mod:)`:
     /// * The result is the **least residue of matching sign**: in `0..<|m|` for
-    ///   a positive modulus (so `MPBigInt(-2).power(3, mod: 5)` is `2`, where
-    ///   `MPBigInt(-2).power(3) % 5` is `-3`), and in `(m, 0]` for a negative one.
+    ///   a positive modulus (so `GMPBigInt(-2).power(3, mod: 5)` is `2`, where
+    ///   `GMPBigInt(-2).power(3) % 5` is `-3`), and in `(m, 0]` for a negative one.
     /// * A **negative `exponent`** raises the modular inverse of `self`, so
     ///   `x.power(-1, mod: m)` *is* that inverse.  It traps when `self` and
     ///   `modulus` are not coprime, there being no inverse to return.
@@ -464,7 +464,7 @@ extension MPBigInt {
 
 // MARK: - GCD and integer square root
 
-extension MPBigInt {
+extension GMPBigInt {
     /// The greatest common divisor of `self` and `other`, via `mpz_gcd`
     /// on the magnitudes — never negative, and zero only when both are zero.
     public func greatestCommonDivisor(with other: Self) -> Self {
@@ -475,7 +475,7 @@ extension MPBigInt {
     /// Traps when `self` is negative, like swift-bignum's `squareRoot()`.
     public func squareRoot() -> Self {
         guard sign >= 0 else {
-            preconditionFailure("square root of a negative MPBigInt")
+            preconditionFailure("square root of a negative GMPBigInt")
         }
         return Self.unary(mpz_sqrt, self)
     }
@@ -483,7 +483,7 @@ extension MPBigInt {
 
 // MARK: - Primality
 
-extension MPBigInt {
+extension GMPBigInt {
     /// Modular exponentiation on non-negative operands with m > 0,
     /// straight through `mpz_powm`.
     private static func mpow(_ base: Self, _ exponent: Self, _ modulus: Self) -> Self {
@@ -721,11 +721,11 @@ extension MPBigInt {
         return u
     }
 
-    /// An endless sequence of the primes, in order.  `MPBigInt.primes` builds one.
+    /// An endless sequence of the primes, in order.  `GMPBigInt.primes` builds one.
     public struct PrimeSequence: Sequence, IteratorProtocol {
-        private var current: MPBigInt? = nil
+        private var current: GMPBigInt? = nil
         public init() {}
-        public mutating func next() -> MPBigInt? {
+        public mutating func next() -> GMPBigInt? {
             let value = current.map { $0.nextPrime } ?? 2
             current = value
             return value
@@ -734,20 +734,20 @@ extension MPBigInt {
 
     /// The primes from 2 upward, lazily and without end.
     ///
-    ///     Array(MPBigInt.primes.prefix(5))    // [2, 3, 5, 7, 11]
+    ///     Array(GMPBigInt.primes.prefix(5))    // [2, 3, 5, 7, 11]
     public static var primes: PrimeSequence { PrimeSequence() }
 }
 
 // MARK: - Codable
 
-extension MPBigInt: Codable {
+extension GMPBigInt: Codable {
     /// Encoded as a decimal string, since most JSON decoders cannot handle huge numbers.
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         let string = try container.decode(String.self)
-        guard let value = MPBigInt(string) else {
+        guard let value = GMPBigInt(string) else {
             throw DecodingError.dataCorruptedError(
-                in: container, debugDescription: "invalid MPBigInt string: \(string)"
+                in: container, debugDescription: "invalid GMPBigInt string: \(string)"
             )
         }
         self = value
@@ -764,4 +764,4 @@ extension MPBigInt: Codable {
 // The underlying mpz is written once, before the value is ever shared, and
 // never mutated afterward; GMP is safe for concurrent reads of distinct or
 // shared operands.
-extension MPBigInt: @unchecked Sendable {}
+extension GMPBigInt: @unchecked Sendable {}

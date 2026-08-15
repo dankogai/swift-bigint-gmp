@@ -2,7 +2,7 @@
 
 BigInt Implementation via the [GNU Multiple Precision Arithmetic Library]
 
-`MPBigInt` wraps GMP's `mpz_t` and delegates all arithmetic to GMP —
+`GMPBigInt` wraps GMP's `mpz_t` and delegates all arithmetic to GMP —
 the fastest bignum library there is — behind the exact same Swift API as
 [dankogai/swift-bignum]'s `BigInt` and
 [dankogai/swift-bigint-javascriptcore]'s `JSBigInt`.
@@ -17,16 +17,16 @@ the fastest bignum library there is — behind the exact same Swift API as
 import GMPBigInt
 
 // Integer literals of any size, thanks to StaticBigInt
-let n: MPBigInt = 123456789012345678901234567890123456789012345678901234567890
+let n: GMPBigInt = 123456789012345678901234567890123456789012345678901234567890
 
 // A full SignedInteger: use it like any Swift integer
-let fact100 = (1...100).map { MPBigInt($0) }.reduce(1, *)
-MPBigInt(2).power(128)              // 340282366920938463463374607431768211456
-(MPBigInt(1) << 100) >> 100         // 1
-MPBigInt("deadbeef", radix: 16)!    // 3735928559
+let fact100 = (1...100).map { GMPBigInt($0) }.reduce(1, *)
+GMPBigInt(2).power(128)              // 340282366920938463463374607431768211456
+(GMPBigInt(1) << 100) >> 100         // 1
+GMPBigInt("deadbeef", radix: 16)!    // 3735928559
 fact100.toString(radix: 36)         // "1cnfrwcnvxbzzicfd6…"
-Int(MPBigInt(42))                   // 42 — stdlib conversions just work
-Double(MPBigInt(1) << 100)          // 1.2676506002282294e+30
+Int(GMPBigInt(42))                   // 42 — stdlib conversions just work
+Double(GMPBigInt(1) << 100)          // 1.2676506002282294e+30
 ```
 
 ## Prerequisite: GMP
@@ -58,7 +58,7 @@ and `import GMPBigInt`.
 
 ## Features
 
-- `MPBigInt` conforms to `SignedInteger` (hence `BinaryInteger`, `Numeric`,
+- `GMPBigInt` conforms to `SignedInteger` (hence `BinaryInteger`, `Numeric`,
   `Comparable`, `Hashable`, `Strideable`…), so it works with generic
   integer algorithms out of the box.
 - Integer literals use `StaticBigInt` — no precision loss, no strings needed.
@@ -84,8 +84,8 @@ and `import GMPBigInt`.
   are public too: `millerRabinTest(base:)`, `isLucasProbablePrime`,
   `isMersennePrime`, and `jacobiSymbol(_:)`.  `nextPrime`/`prevPrime`
   walk to the neighboring primes (on the probable test, so they
-  terminate at any size), and `MPBigInt.primes` is the endless lazy
-  sequence of them: `Array(MPBigInt.primes.prefix(5))` is `[2, 3, 5, 7, 11]`.
+  terminate at any size), and `GMPBigInt.primes` is the endless lazy
+  sequence of them: `Array(GMPBigInt.primes.prefix(5))` is `[2, 3, 5, 7, 11]`.
 
 [Baillie-PSW]: https://en.wikipedia.org/wiki/Baillie%E2%80%93PSW_primality_test
 
@@ -97,9 +97,9 @@ and `import GMPBigInt`.
 
 ## SwiftBigNumExample
 
-[SwiftBigNumExample](SwiftBigNumExample/) shows `MPBigInt` riding
-[dankogai/swift-bignum]'s generic machinery: `Rational<MPBigInt>` and
-`BigFloatOf<MPBigInt>` — `BigRat` and `BigFloat` with GMP digits — via
+[SwiftBigNumExample](SwiftBigNumExample/) shows `GMPBigInt` riding
+[dankogai/swift-bignum]'s generic machinery: `Rational<GMPBigInt>` and
+`BigFloatOf<GMPBigInt>` — `BigRat` and `BigFloat` with GMP digits — via
 two retroactive conformances.
 
 ## Prerequisite

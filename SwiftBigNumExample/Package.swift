@@ -11,8 +11,8 @@ let package = Package(
         .package(url: "https://github.com/dankogai/swift-bignum.git", branch: "main"),
     ],
     targets: [
-        // the conformance glue: MPBigInt as a RationalElement and
-        // BigIntegerType, plus the MPRat/MPFloat typealiases
+        // the conformance glue: GMPBigInt as a RationalElement and
+        // BigIntegerType, plus the GMPRat/GMPFloat typealiases
         .target(
             name: "GMPBigNum",
             dependencies: [
